@@ -27,6 +27,7 @@ func main() {
 
 	mux.HandleFunc("POST /users", createUser)
 	mux.HandleFunc("GET /users/{id}", getUser)
+	mux.HandleFunc("DELETE /users/{id]", deleteUser)
 
 	fmt.Println("Starting server on port 8080")
 	err := http.ListenAndServe(":8080", mux)
@@ -100,4 +101,26 @@ func getUser(w http.ResponseWriter, r *http.Request) {
 
 	// Write back the successful status code
 	w.WriteHeader(http.StatusOK)
+}
+
+func deleteUser(w http.ResponseWriter, r *http.Request) {
+	// Retrieve user id from path
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Check if user exists in userCache
+	if _, ok := userCache[id]; !ok {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Delete the user
+	cacheMutex.Lock()
+	delete(userCache, id)
+	cacheMutex.Unlock()
+
+	w.WriteHeader(http.StatusNoContent)
 }
