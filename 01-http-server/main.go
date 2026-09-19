@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 )
 
@@ -25,6 +26,7 @@ func main() {
 	mux.HandleFunc("/", handleRoot)
 
 	mux.HandleFunc("POST /users", createUser)
+	mux.HandleFunc("GET /users/{id}", getUser)
 
 	fmt.Println("Starting server on port 8080")
 	err := http.ListenAndServe(":8080", mux)
@@ -59,4 +61,43 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	cacheMutex.Unlock()
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func getUser(w http.ResponseWriter, r *http.Request) {
+	// Retrieve user id from path
+	id, err := strconv.Atoi(r.PathValue("id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Retrieve user from cache using id
+	cacheMutex.RLock()
+	user, ok := userCache[id]
+	cacheMutex.RUnlock()
+	if !ok {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	// Configure the response type to let the
+	// client know that they will receive valid json
+	w.Header().Set("Content-Type", "application/json")
+
+	// Marshal user to json format
+	j, err := json.Marshal(user)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Write back the json response (User)
+	_, err = w.Write(j)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Write back the successful status code
+	w.WriteHeader(http.StatusOK)
 }
