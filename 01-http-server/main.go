@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sync"
 )
 
 type User struct {
@@ -12,6 +13,10 @@ type User struct {
 }
 
 var userCache = make(map[int]User)
+
+// Blocks all reading and writing
+// whenever this mutex gets locked
+var cacheMutex sync.RWMutex
 
 func main() {
 	// A mux is a request multiplexer which allows us to control
@@ -49,7 +54,9 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "User name is required", http.StatusBadRequest)
 	}
 
+	cacheMutex.Lock()
 	userCache[len(userCache)+1] = user
-	
+	cacheMutex.Unlock()
+
 	w.WriteHeader(http.StatusCreated)
 }
