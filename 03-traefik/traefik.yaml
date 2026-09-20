@@ -1,0 +1,10 @@
+# Static configuration
+
+entrypoints:
+  unsecure:
+    address: :80
+
+providers:
+  file:
+    filename: all.yaml
+    watch: true           # Every time all.yaml changes refresh and pull from the file
