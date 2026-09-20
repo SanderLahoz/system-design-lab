@@ -61,7 +61,7 @@ func main() {
 		go func(p string) {
 			defer wg.Done()
 			server := createServer(p)
-			log.Printf("Starting service on http://localhost:%s\n", p)
+			fmt.Printf("Starting service on http://localhost:%s\n", p)
 			if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 				log.Fatalf("Error starting server on port %s: %v", p, err)
 			}
