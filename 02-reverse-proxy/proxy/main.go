@@ -36,5 +36,18 @@ func main() {
 		return
 	}
 
-	fmt.Println(string(buffer))
+	// Contact origin server to establish connection
+	OriginConn, err := net.Dial("tcp", originServer)
+	if err != nil {
+		log.Fatal("Failed to connect to originServer", err)
+	}
+
+	// Write the buffer to the origin server
+	// (Forward message to the server through this proxy)
+	_, err = OriginConn.Write(buffer)
+	if err != nil {
+		log.Fatal("Failed to write to originServer", err)
+		return
+	}
+
 }
