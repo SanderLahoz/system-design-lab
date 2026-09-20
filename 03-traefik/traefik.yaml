@@ -6,5 +6,5 @@ entrypoints:
 
 providers:
   file:
-    filename: all.yaml
+    filename: split.yaml
     watch: true           # Every time all.yaml changes refresh and pull from the file
