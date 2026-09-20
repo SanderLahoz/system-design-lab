@@ -1,0 +1,27 @@
+http:
+  routers:
+    adminBlocker:
+      # Match /admin first using higher priority
+      rule: "Host(`localhost`) && PathPrefix(`/admin`)"
+      service: blackhole
+      priority: 100
+
+    allBackendRouter:
+      rule: "Host(`localhost`)"
+      service: allBackend
+      priority: 1
+
+  services:
+    allBackend:
+      loadBalancer:
+        servers:
+          - url: "http://localhost:1111/"
+          - url: "http://localhost:2222/"
+          - url: "http://localhost:3333/"
+          - url: "http://localhost:4444/"
+
+    blackhole:
+      loadBalancer:
+        # Traefik requires at least one server entry or explicit config.
+        # To drop/block requests cleanly, consider using Traefik Middlewares instead.
+        servers: []

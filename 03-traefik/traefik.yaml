@@ -6,5 +6,5 @@ entrypoints:
 
 providers:
   file:
-    filename: split.yaml
+    filename: blockadmin.yaml
     watch: true           # Every time all.yaml changes refresh and pull from the file
